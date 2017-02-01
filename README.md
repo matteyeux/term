@@ -13,7 +13,7 @@ Just run `make` you need to have `gcc` installed
 Usage of term is pretty easy.
 eg : `./term /dev/ttyUSB0`. <br>
 Here is the output you may have with an iOS device and dcsd
-![jelbrek](ios_screen.png)
+![jelbrek](screen1.png)
 
 Actually [baudrate](https://github.com/matteyeux/term/blob/master/term.c#L62) is 115200.
 ### Creditz
