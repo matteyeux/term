@@ -7,7 +7,9 @@
 #include <errno.h>
 
 void usage(int argc, char *argv []){
-    printf("usage : %s [PORT]\n", argv[0]);
+	char *name = NULL;
+	name = strrchr(argv[0], '/');
+	printf("usage : %s [PORT]\n",(name ? name + 1: argv[0]));
 }
 
 void set_speed (struct termios * config, speed_t speed)
