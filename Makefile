@@ -5,11 +5,11 @@ TARGET = term
 all : $(TARGET)
 
 $(TARGET) :
-	$(CC) term.c -o $(TARGET)
+	$(CC) term.c -g -o $(TARGET)
 	@echo "Successfully built $(TARGET) for $(OS)"
 
 install : $(TARGET)
-	cp $(TARGET) /usr/local/bin/ 
+	install -v $(TARGET) /usr/local/bin/
 clean : 
 	rm $(TARGET)
 
