@@ -4,7 +4,7 @@ TARGET = term
 
 all : $(TARGET)
 
-$(TARGET) :
+$(TARGET) : term.c
 	$(CC) term.c -g -o $(TARGET)
 	@echo "Successfully built $(TARGET) for $(OS)"
 
