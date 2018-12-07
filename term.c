@@ -9,13 +9,13 @@
 
 int fd = -1;
 
-void usage(int argc, char *argv []){
+void usage(int argc, char *argv[]){
 	char *name = NULL;
 	name = strrchr(argv[0], '/');
 	printf("usage : %s [PORT]\n",(name ? name + 1: argv[0]));
 }
 
-void set_speed (struct termios * config, speed_t speed)
+void set_speed (struct termios *config, speed_t speed)
 {
 	cfsetispeed(config, speed);
 	cfsetospeed(config, speed);
@@ -27,17 +27,18 @@ void INThandler(int sig)
 	signal(sig, SIG_IGN);
 	printf("quit term ? [Y/n]\n");
 	yn = getchar();
+
 	if (yn == 'y' || yn == 'Y')
 	{
 		close(fd);
 		exit(EXIT_SUCCESS);
 	}
+
 	exit(0);
 }
 
 int main(int argc, char *argv [])
 {
-	//const char *port = "/dev/ttyUSB0";
 	struct termios conf;
 	struct termios save;
 
@@ -49,10 +50,12 @@ int main(int argc, char *argv [])
 		return 0;
 	}
 
-	if (strcmp(argv[1], "-h")==0 || strcmp(argv[1], "--help")==0)
+	if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))
 	{
 		usage(argc, argv);
+		return 0;
 	}
+
 	const char *port = argv[1];
 
 	signal(SIGINT, INThandler);
@@ -68,6 +71,7 @@ int main(int argc, char *argv [])
 		printf("%s", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
+
 	conf.c_cflag   &= ~ CLOCAL;
 	tcsetattr(fd, TCSANOW, &conf);
 
@@ -76,6 +80,7 @@ int main(int argc, char *argv [])
 
 	printf("[INFO] %s : opened\n", port);
 	tcgetattr(fd, &conf);
+
 	memcpy(&save, &conf, sizeof(struct termios));
 	cfmakeraw(&conf);
 	set_speed(&conf, B9600);
@@ -94,9 +99,11 @@ int main(int argc, char *argv [])
 		printf("%s", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
+
 	printf("[INFO] %s : configured\n", port);
 
 	printf("[INFO] Data reception started\n");
+
 	while (1) {
 		reads = read(fd, buffer, 1024);
 		if (reads < 0)  {
@@ -107,8 +114,9 @@ int main(int argc, char *argv [])
 			break;
 		write(STDOUT_FILENO, buffer, reads);
 	}
+
 	printf("[INFO] Reception ended \n");
-	// back to the past
+
 	fd = open(port, O_RDWR | O_NONBLOCK);
 	save.c_cflag |= CLOCAL;
 	tcsetattr(fd, TCSANOW, &save);
