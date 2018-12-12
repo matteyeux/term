@@ -83,7 +83,7 @@ int main(int argc, char *argv [])
 
 	memcpy(&save, &conf, sizeof(struct termios));
 	cfmakeraw(&conf);
-	set_speed(&conf, B9600);
+	set_speed(&conf, B115200);
 
 	conf.c_cflag &= ~PARENB;
 	conf.c_cflag &= ~CSIZE;
