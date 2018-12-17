@@ -7,13 +7,10 @@
 #include <errno.h>
 #include <signal.h>
 
-int fd = -1;
+#define INFO(...) printf("[INFO] " __VA_ARGS__)
+#define ERROR(...) printf("[ERROR] " __VA_ARGS__)
 
-void usage(int argc, char *argv[]){
-	char *name = NULL;
-	name = strrchr(argv[0], '/');
-	printf("usage : %s [PORT]\n",(name ? name + 1: argv[0]));
-}
+int fd = -1;
 
 void set_speed (struct termios *config, speed_t speed)
 {
@@ -37,7 +34,7 @@ void INThandler(int sig)
 	exit(0);
 }
 
-int main(int argc, char *argv [])
+int term(const char *port)
 {
 	struct termios conf;
 	struct termios save;
@@ -45,30 +42,18 @@ int main(int argc, char *argv [])
 	char buffer[1024];
 	int reads;
 
-	if (argc != 2) {
-		usage(argc, argv);
-		return 0;
-	}
-
-	if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))
-	{
-		usage(argc, argv);
-		return 0;
-	}
-
-	const char *port = argv[1];
 
 	signal(SIGINT, INThandler);
 
 	/*No block opening to switch to non-local mode*/
 	fd = open(port, O_RDWR | O_NONBLOCK);
 	if (fd < 0) {
-		printf("[ERROR] %s : %s\n",port, strerror(errno));
+		ERROR("%s : %s\n",port, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	if (tcgetattr(fd, &conf) != 0) {
-		printf("%s", strerror(errno));
+		ERROR("%s", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -78,7 +63,7 @@ int main(int argc, char *argv [])
 	// We manipulate fd to block it
 	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) &  ~O_NONBLOCK);
 
-	printf("[INFO] %s : opened\n", port);
+	INFO("%s : opened\n", port);
 	tcgetattr(fd, &conf);
 
 	memcpy(&save, &conf, sizeof(struct termios));
@@ -100,9 +85,9 @@ int main(int argc, char *argv [])
 		exit(EXIT_FAILURE);
 	}
 
-	printf("[INFO] %s : configured\n", port);
+	INFO("%s : configured\n", port);
 
-	printf("[INFO] Data reception started\n");
+	INFO("Data reception started\n");
 
 	while (1) {
 		reads = read(fd, buffer, 1024);
@@ -115,7 +100,7 @@ int main(int argc, char *argv [])
 		write(STDOUT_FILENO, buffer, reads);
 	}
 
-	printf("[INFO] Reception ended \n");
+	INFO("[INFO] Reception ended \n");
 
 	fd = open(port, O_RDWR | O_NONBLOCK);
 	save.c_cflag |= CLOCAL;

@@ -1,15 +1,18 @@
 CC = gcc
 OS = $(shell uname)
+CFLAGS  = -I. -Wall -Wextra -Werror -g
+
 TARGET = term
 
 all : $(TARGET)
 
-$(TARGET) : term.c
-	$(CC) term.c -g -o $(TARGET)
+$(TARGET) : main.c term.c
+	$(CC) main.c term.c $(CFLAGS) -o $(TARGET)
 	@echo "Successfully built $(TARGET) for $(OS)"
 
 install : $(TARGET)
 	install -v $(TARGET) /usr/local/bin/
-clean : 
+
+clean :
 	rm $(TARGET)
 
